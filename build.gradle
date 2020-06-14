@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'scala'
+    id 'maven-publish'
+    id 'maven'
+    id 'signing'
+}
+
+
+group 'org.cloudbird.spark.extensions'
+archivesBaseName = "etl"
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.4.5'
+    compile group: 'org.apache.spark', name: 'spark-streaming_2.11', version: '2.4.5'
+    compile group: 'org.apache.spark', name: 'spark-hive_2.11', version: '2.4.5'
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-scala_2.11', version: '2.11.0'
+}
