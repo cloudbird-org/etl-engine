@@ -2,13 +2,11 @@ plugins {
     id 'java'
     id 'scala'
     id 'maven-publish'
-    id 'maven'
-    id 'signing'
 }
 
 
 group 'org.cloudbird.spark.extensions'
-archivesBaseName = "etl"
+archivesBaseName = "etl-engine"
 version '1.0-SNAPSHOT'
 
 repositories {
