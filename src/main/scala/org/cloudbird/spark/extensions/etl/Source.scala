@@ -99,5 +99,4 @@ class Source(spark: SparkSession) {
 
     df.createTempView(outputView)
   }
-
 }

@@ -60,16 +60,16 @@ package object etl {
 
   def singleValueFieldCheck(field:String,instrSet:Option[InstructionSet]): Boolean = {
     var fieldValueProvided = false
-    if (!field.contains("||"))
-      instrSet.get.singleValueField.getOrElse(field, null) != null
-    else {
+    if (field.contains("||")) {
       val fieldArray = field.split("||")
       breakable {
         fieldArray.foreach(x => {
-          fieldValueProvided = instrSet.get.singleValueField.getOrElse(x, null) != null
+          fieldValueProvided = if(instrSet.get.singleValueField.getOrElse(x, null) != null) true else false
           if (fieldValueProvided) break
         })
       }
+    } else {
+      fieldValueProvided = if(instrSet.get.singleValueField.getOrElse(field, null) != null) true else false
     }
     if (!fieldValueProvided)
       log.error("Data for field {}  not Provided",field)
@@ -88,12 +88,12 @@ package object etl {
   def multiValueFieldCheck(fieldGroup:String,field:String,instrSet:Option[InstructionSet]): Boolean = {
     var fieldValueProvided:Boolean = false;
     if (!field.contains("||"))
-      fieldValueProvided = instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(field, null) != null
+      fieldValueProvided = if(instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(field, null) != null) true else false
     else{
       val fieldArray = field.split("||")
       breakable {
         fieldArray.foreach(x => {
-          fieldValueProvided = instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(x, null) != null
+          fieldValueProvided = if(instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(x, null) != null) true else false
           if (fieldValueProvided) break
         })
       }
@@ -185,6 +185,13 @@ package object etl {
     if(reqJDBCLoadDataCheckStatus)
       reqJDBCLoadDataCheckStatus = fieldListValueCheck(fieldList,instrSet)
     reqJDBCLoadDataCheckStatus
+  }
+
+  def validateExeFuncData(instrSet:Option[InstructionSet]): Boolean ={
+    var reqExeFuncDataCheckStatus = false;
+    var fieldList = Array("class","function")
+    reqExeFuncDataCheckStatus = fieldListValueCheck(fieldList,instrSet)
+    reqExeFuncDataCheckStatus
   }
 
   case class InstructionSet(execType:String, singleValueField:Map[String,String],multiValueField:Map[String,Map[String,String]])

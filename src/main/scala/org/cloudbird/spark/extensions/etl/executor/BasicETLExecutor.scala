@@ -20,27 +20,29 @@ import org.cloudbird.spark.extensions.etl.Source
 import org.cloudbird.spark.extensions.etl.Sink
 import org.cloudbird.spark.extensions.etl.Transform
 
-object ETLExecutor {
+object BasicETLExecutor {
   val log = LoggerFactory.getLogger(getClass)
-  val spark = SparkSession.builder().appName("ETLExecutor").enableHiveSupport().master("local[8]")getOrCreate()
+  val spark = SparkSession.builder().appName("BasicETLExecutor").enableHiveSupport().master("local[8]").getOrCreate()
 
   def main(args: Array[String]): Unit = {
     val instrSets = readExecutionSteps(args,"--instrSetFile")
     val instrSeqList = instrSets.keys.toList.sortWith(_.toInt<_.toInt)
     for(instrSeq<-instrSeqList){
       val instrSet =  instrSets.get(instrSeq)
-      validateInstructionSet(instrSet)
-      executeInstructionSet(instrSet)
+      if(validInstructionSet(instrSet))
+        executeInstructionSet(instrSet)
+      else
+        log.error("Validation of input failed for run id:"+instrSeq+" with execution Type :"+instrSet.get.execType)
     }
   }
 
-  def validateInstructionSet(instrSet:Option[InstructionSet]):Boolean = {
+  def validInstructionSet(instrSet:Option[InstructionSet]):Boolean = {
     val execType = instrSet.get.execType
     execType match {
       case "load" => validateLoadData(instrSet)
       case "executeQuery" =>validateExecQryData(instrSet)
       case "save" =>validateSaveData(instrSet)
-      case "executeFunction" => true
+      case "executeFunction" => validateExeFuncData(instrSet)
     }
   }
 
