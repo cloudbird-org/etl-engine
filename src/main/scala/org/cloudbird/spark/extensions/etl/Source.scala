@@ -62,7 +62,7 @@ class Source(spark: SparkSession) {
       "format = {}, \n" +
       "schema = {}, \n" +
       "options = {}, \n" +
-      "path = {} " +
+      "path = {} ",
       srcConf.format, srcConf.schema, srcConf.options.toString, srcConf.path)
     var df:DataFrame = null
     if (srcConf.path != null  && srcConf.schema!=null)
@@ -84,7 +84,7 @@ class Source(spark: SparkSession) {
       "format = {}, \n" +
       "schema = {}, \n" +
       "options = {}, \n" +
-      "path = {} " +
+      "path = {} ",
       srcConf.format, srcConf.schema, srcConf.options.toString, srcConf.path)
     log.info("srcConf.format:"+srcConf.format)
     log.info("srcConf.schema:"+srcConf.schema)

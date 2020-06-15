@@ -13,9 +13,12 @@
 package org.cloudbird.spark.extensions.etl
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.expressions.{SparkUserDefinedFunction, UserDefinedFunction}
 import org.apache.spark.storage.StorageLevel
 import org.slf4j.LoggerFactory
+import org.apache.spark.sql.functions.udf
+import scala.reflect.runtime.universe.{Quasiquote,runtimeMirror}
+import scala.tools.reflect.ToolBox
 
 class Transform(spark: SparkSession) {
 
@@ -82,18 +85,27 @@ class Transform(spark: SparkSession) {
     spark.conf.set("spark.sql.broadcastTimeout", xformConf.broadcastTimeout)
     spark.conf.set("spark.sql.autoBroadcastJoinThreshold", xformConf.autoBroadcastJoinThreshold)
     spark.conf.set("spark.sql.shuffle.partitions", xformConf.shufflePartitions)
+    log.info("Spark for Settings SQL Query\n" +
+      "spark.sql.inMemoryColumnarStorage.compressed = {},\n" +
+      "spark.sql.inMemoryColumnarStorage.batchSize = {}, \n" +
+      "spark.sql.files.maxPartitionBytes = {}, \n" +
+      "spark.sql.files.openCostInBytes = {}, \n" +
+      "spark.sql.broadcastTimeout = {} ",
+      "spark.sql.autoBroadcastJoinThreshold = {} ",
+      "spark.spark.sql.shuffle.partitions = {} ",
+      xformConf.compression, xformConf.batchSize, xformConf.maxPartitionBytes.toString,
+      xformConf.openCostInBytes,xformConf.broadcastTimeout,xformConf.autoBroadcastJoinThreshold,
+      xformConf.shufflePartitions)
   }
 
   def executeQuery(sql: String, outputView: String, cacheView: Boolean, debug:Boolean) {
+    log.info("Spark SQL Executed:{}", sql)
     val df = spark.sql(sql)
     df.createTempView(outputView)
     if(debug) df.show(20,false)
     if (cacheView) spark.catalog.cacheTable(outputView, StorageLevel.MEMORY_AND_DISK)
   }
 
-  def register(udfName: String, udf: UserDefinedFunction): UserDefinedFunction = {
-    spark.udf.register(udfName, udf)
-  }
 
   def executeFunction(instrSet:InstructionSet): Unit = {
     val xformFuncClassStr = instrSet.singleValueField.get("class").get
@@ -107,4 +119,9 @@ class Transform(spark: SparkSession) {
   def executeFunction(xformFunc: (InstructionSet) => Unit, instrSet:InstructionSet): Unit = {
     xformFunc(instrSet)
   }
+
+  def registerUDF(udfName: String, udf: UserDefinedFunction): UserDefinedFunction = {
+    spark.udf.register(udfName, udf)
+  }
+
 }

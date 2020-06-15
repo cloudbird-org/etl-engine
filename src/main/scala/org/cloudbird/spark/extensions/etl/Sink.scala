@@ -66,7 +66,7 @@ class Sink(spark: SparkSession) {
       "trigger = {}, \n" +
       "outputMode = {}, \n" +
       "options = {}, \n" +
-      "path = {} " +
+      "path = {} ",
       sinkConf.format, sinkConf.streamTrigger, sinkConf.streamOutputMode, sinkConf.options.toString, sinkConf.path)
     val df = spark.sql("select * from "+ inputView)
     if (sinkConf.path != null)
@@ -81,12 +81,13 @@ class Sink(spark: SparkSession) {
       "format = {}, \n" +
       "mode = {}, \n" +
       "options = {}, \n" +
-      "path = {} " +
+      "path = {} ",
       sinkConf.format, sinkConf.batchSaveMode, sinkConf.options.toString, sinkConf.path)
 
     val df = spark.sql("select * from "+ inputView)
 
     if(sinkConf.debug) df.show(20,false)
+
     if (sinkConf.path != null)
       df.write.format(sinkConf.format).mode(sinkConf.batchSaveMode).options(sinkConf.options).save(sinkConf.path)
     else

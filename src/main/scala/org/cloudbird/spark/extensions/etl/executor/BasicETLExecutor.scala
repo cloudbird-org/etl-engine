@@ -22,11 +22,15 @@ import org.cloudbird.spark.extensions.etl.Transform
 
 object BasicETLExecutor {
   val log = LoggerFactory.getLogger(getClass)
-  val spark = SparkSession.builder().appName("BasicETLExecutor").enableHiveSupport().master("local[8]").getOrCreate()
+
+  val spark = SparkSession.builder().appName("BasicETLExecutor").enableHiveSupport().getOrCreate()
 
   def main(args: Array[String]): Unit = {
     val instrSets = readExecutionSteps(args,"--instrSetFile")
     val instrSeqList = instrSets.keys.toList.sortWith(_.toInt<_.toInt)
+    //Create UDFs Required
+    // Register UDF using spark.register.udf(<udfName>,<UDF function Created>
+    //
     for(instrSeq<-instrSeqList){
       val instrSet =  instrSets.get(instrSeq)
       if(validInstructionSet(instrSet))
@@ -43,6 +47,7 @@ object BasicETLExecutor {
       case "executeQuery" =>validateExecQryData(instrSet)
       case "save" =>validateSaveData(instrSet)
       case "executeFunction" => validateExeFuncData(instrSet)
+      case "registerUDF" => validateExeFuncData(instrSet)
     }
   }
 
