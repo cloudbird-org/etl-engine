@@ -198,9 +198,9 @@ package object etl {
 
   case class ETLInstructions(instructionSets:Map[String,InstructionSet])
 
-  case class SourceConf(processingType: String, format: String, schema: String, options: mutable.Map[String, String], path: String)
+  case class SourceConf(processingType: String, format: String, schema: String, options: mutable.Map[String, String], path: String, debug: Boolean)
 
-  case class SinkConf(processingType: String, format: String, streamTrigger: Trigger, streamOutputMode: String, batchSaveMode: String, options: mutable.Map[String, String], path: String)
+  case class SinkConf(processingType: String, format: String, streamTrigger: Trigger, streamOutputMode: String, batchSaveMode: String, options: mutable.Map[String, String], path: String, debug: Boolean)
 
   case class XFormConf(compression: String, batchSize: String, maxPartitionBytes: String, openCostInBytes: String, broadcastTimeout: String, autoBroadcastJoinThreshold: String, shufflePartitions: String)
 

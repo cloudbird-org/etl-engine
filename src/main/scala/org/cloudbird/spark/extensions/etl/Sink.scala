@@ -34,7 +34,8 @@ class Sink(spark: SparkSession) {
     val optionsData = sparkConf.getAll.filter(x => (x._1.contains(optionConfName)))
     optionsData.foreach(option => options += (option._1.substring(0, optionConfName.length + 1) -> option._2))
     val path = Option(sparkConf.get(getConfName(sinkName, "path")))
-    val sinkConf = SinkConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), Trigger.ProcessingTime(streamTrigger.getOrElse("0l").toLong), streamOutputMode.getOrElse("Append"), batchSaveMode.getOrElse("ErrorIfExists"), options, path.getOrElse(null))
+    val debug = Option(sparkConf.get(getConfName(sinkName, "debug")))
+    val sinkConf = SinkConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), Trigger.ProcessingTime(streamTrigger.getOrElse("0l").toLong), streamOutputMode.getOrElse("Append"), batchSaveMode.getOrElse("ErrorIfExists"), options, path.getOrElse(null),debug.getOrElse("false").toBoolean)
     write(inputView, sinkConf)
   }
 
@@ -49,7 +50,8 @@ class Sink(spark: SparkSession) {
     val optionsData = multiValueField.get("options").getOrElse(Map[String,String]())
     optionsData.keys.foreach(option => options += (option -> optionsData.get(option).get))
     val path = singleValueField.get("path")
-    val sinkConf = SinkConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), Trigger.ProcessingTime(streamTrigger.getOrElse("0").toLong),  streamOutputMode.getOrElse("Append"), batchSaveMode.getOrElse("ErrorIfExists"), options, path.getOrElse(null))
+    val debug = singleValueField.getOrElse("debug","false").toBoolean
+    val sinkConf = SinkConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), Trigger.ProcessingTime(streamTrigger.getOrElse("0").toLong),  streamOutputMode.getOrElse("Append"), batchSaveMode.getOrElse("ErrorIfExists"), options, path.getOrElse(null),debug)
     write(inputView, sinkConf)
   }
 
@@ -84,6 +86,7 @@ class Sink(spark: SparkSession) {
 
     val df = spark.sql("select * from "+ inputView)
 
+    if(sinkConf.debug) df.show(20,false)
     if (sinkConf.path != null)
       df.write.format(sinkConf.format).mode(sinkConf.batchSaveMode).options(sinkConf.options).save(sinkConf.path)
     else

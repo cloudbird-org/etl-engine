@@ -32,7 +32,9 @@ class Source(spark: SparkSession) {
     val optionsData = sparkConf.getAll.filter(x => (x._1.contains(optionConfName)))
     optionsData.foreach(option => options += (option._1.substring(0, optionConfName.length + 1) -> option._2))
     val path = Option(sparkConf.get(getConfName(srcName, "path")))
-    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null))
+    val debug = Option(sparkConf.get(getConfName(srcName, "debug")))
+
+    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null),debug.getOrElse("false").toBoolean)
     read(srcConf,outputView)
   }
 
@@ -45,8 +47,8 @@ class Source(spark: SparkSession) {
     val optionsData = multiValueField.get("options").getOrElse(Map[String,String]())
     optionsData.keys.foreach(option => options += (option -> optionsData.get(option).get))
     val path = singleValueField.get("path")
-    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null))
-    log.info("srcConf:"+srcConf.toString)
+    val debug = singleValueField.getOrElse("debug","false").toBoolean
+    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null),debug)
     read(srcConf,outputView)
   }
 
@@ -72,6 +74,7 @@ class Source(spark: SparkSession) {
     else
       spark.readStream.format(srcConf.format).options(srcConf.options).load()
 
+    if(srcConf.debug) df.show(20,false)
     df.createTempView(outputView)
   }
 
@@ -97,6 +100,7 @@ class Source(spark: SparkSession) {
     else
       spark.read.format(srcConf.format).options(srcConf.options).load()
 
+    if(srcConf.debug) df.show(20,false)
     df.createTempView(outputView)
   }
 }

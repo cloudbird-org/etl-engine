@@ -22,7 +22,7 @@ class Transform(spark: SparkSession) {
   val sparkConf = spark.sparkContext.getConf
   val log = LoggerFactory.getLogger(classOf[Transform])
 
-  def executeQuery(xformName: String, sql: String, outputView: String, cacheView: Boolean):Unit = {
+  def executeQuery(xformName: String, sql: String, outputView: String, cacheView: Boolean, debug:Boolean):Unit = {
     val compression = Option(sparkConf.get(getConfName(xformName, "sql.inMemoryColumnarStorage.compressed")))
       .getOrElse(Option(sparkConf.get(getConfName(xformName, "compressed"))).getOrElse("true"))
     val batchSize = Option(sparkConf.get(getConfName(xformName, "sql.inMemoryColumnarStorage.batchSize")))
@@ -37,14 +37,17 @@ class Transform(spark: SparkSession) {
       .getOrElse(Option(sparkConf.get(getConfName(xformName, "autoBroadcastJoinThreshold"))).getOrElse("10485760"))
     val shufflePartitions = Option(sparkConf.get(getConfName(xformName, "sql.shuffle.partitions")))
       .getOrElse(Option(sparkConf.get(getConfName(xformName, "shufflePartitions"))).getOrElse("200"))
+    val debug = Option(sparkConf.get(getConfName(xformName, "sql.debug")))
+      .getOrElse(Option(sparkConf.get(getConfName(xformName, "debug"))).getOrElse("false")).toBoolean
 
     val xformConf = XFormConf(compression, batchSize, maxPartitionBytes, openCostInBytes, broadcastTimeout, autoBroadcastJoinThreshold, shufflePartitions)
-    executeQuery(xformConf, sql, outputView, cacheView)
+    executeQuery(xformConf, sql, outputView, cacheView, debug)
   }
 
   def executeQuery(singleValueField:Map[String,String],multiValueField:Map[String,Map[String,String]]):Unit = {
     val outputView = singleValueField.get("outputView").get
     val sql = singleValueField.get("sql").get
+    val debug = singleValueField.getOrElse("debug","false").toBoolean
     val cacheView = singleValueField.getOrElse("cacheView","false").toBoolean
     val sparkSettings = multiValueField.get("sparkSettings").getOrElse(Map[String,String]())
     val compression = sparkSettings.getOrElse("sql.inMemoryColumnarStorage.compressed",
@@ -63,12 +66,12 @@ class Transform(spark: SparkSession) {
       sparkSettings.getOrElse("shufflePartitions","200"))
 
     val xformConf = XFormConf(compression, batchSize, maxPartitionBytes, openCostInBytes, broadcastTimeout, autoBroadcastJoinThreshold, shufflePartitions)
-    executeQuery(xformConf, sql, outputView, cacheView)
+    executeQuery(xformConf, sql, outputView, cacheView, debug)
   }
 
-  def executeQuery(xformConf: XFormConf, sql: String, outputView: String, cacheView: Boolean):Unit = {
+  def executeQuery(xformConf: XFormConf, sql: String, outputView: String, cacheView: Boolean, debug: Boolean):Unit = {
     setSparkProperties(xformConf)
-    executeQuery(sql, outputView, cacheView)
+    executeQuery(sql, outputView, cacheView, debug)
   }
 
   def setSparkProperties(xformConf: XFormConf) {
@@ -81,9 +84,10 @@ class Transform(spark: SparkSession) {
     spark.conf.set("spark.sql.shuffle.partitions", xformConf.shufflePartitions)
   }
 
-  def executeQuery(sql: String, outputView: String, cacheView: Boolean) {
+  def executeQuery(sql: String, outputView: String, cacheView: Boolean, debug:Boolean) {
     val df = spark.sql(sql)
     df.createTempView(outputView)
+    if(debug) df.show(20,false)
     if (cacheView) spark.catalog.cacheTable(outputView, StorageLevel.MEMORY_AND_DISK)
   }
 
@@ -103,6 +107,4 @@ class Transform(spark: SparkSession) {
   def executeFunction(xformFunc: (InstructionSet) => Unit, instrSet:InstructionSet): Unit = {
     xformFunc(instrSet)
   }
-
-
 }

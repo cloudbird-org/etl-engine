@@ -5,7 +5,8 @@
       "singleValueField": {
         "format": "csv",
         "path": "/Users/Shared/listings.csv",
-        "outputView": "abnb_sfo_listing"
+        "outputView": "abnb_sfo_listing",
+        "debug": "true"
       },
       "multiValueField": {
         "options": {
@@ -19,7 +20,8 @@
       "singleValueField": {
         "sql": "select name from abnb_sfo_listing",
         "outputView": "abnb_sfo_listing_name",
-        "cacheView": "true"
+        "cacheView": "true",
+        "debug": "true"
       },
       "multiValueField": {
         "sparkSettings": {
