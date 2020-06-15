@@ -12,13 +12,8 @@
 
 package org.cloudbird.spark.extensions.etl.executor
 
-import java.io.{BufferedReader}
-
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import org.apache.spark.sql.SparkSession
 import org.slf4j.LoggerFactory
-import scala.collection.immutable.ListMap
 
 import org.cloudbird.spark.extensions.etl._
 import org.cloudbird.spark.extensions.etl.Source
@@ -69,12 +64,8 @@ object ETLExecutor {
       }
       case "executeFunction" => {
         val xform = new Transform(spark)
-        xform.executeFunction(square,Map("test"->"hello world"))
+        xform.executeFunction(instrSet.get)
       }
     }
-  }
-  def square(x: Map[String, String]): Unit = {
-    val data = x.getOrElse("test","Dummy")
-      println("data:"+data)
   }
 }

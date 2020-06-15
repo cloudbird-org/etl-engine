@@ -91,8 +91,18 @@ class Transform(spark: SparkSession) {
     spark.udf.register(udfName, udf)
   }
 
-  def executeFunction(xformFunc: (Map[String, String]) => Unit, funcInput: Map[String, String]): Unit = {
-    xformFunc(funcInput)
+  def executeFunction(instrSet:InstructionSet): Unit = {
+    val xformFuncClassStr = instrSet.singleValueField.get("class").get
+    val xformFuncStr = instrSet.singleValueField.get("function").get
+    val funcClass = Class.forName(xformFuncClassStr)
+    val funcObject = funcClass.newInstance();
+    val method = funcClass.getMethod(xformFuncStr, instrSet.getClass)
+    method.invoke(funcObject,instrSet)
   }
+
+  def executeFunction(xformFunc: (InstructionSet) => Unit, instrSet:InstructionSet): Unit = {
+    xformFunc(instrSet)
+  }
+
 
 }

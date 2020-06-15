@@ -79,8 +79,8 @@ package object etl {
   def fieldListValueCheck(fieldList:Array[String],instrSet:Option[InstructionSet]): Boolean = {
     var reqFieldDataFound = true
     fieldList.foreach(field=>{
-        reqFieldDataFound = singleValueFieldCheck(field,instrSet)
-        if(!reqFieldDataFound) return false
+      reqFieldDataFound = singleValueFieldCheck(field,instrSet)
+      if(!reqFieldDataFound) return false
     })
     reqFieldDataFound
   }

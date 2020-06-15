@@ -4,7 +4,7 @@
       "execType": "load",
       "singleValueField": {
         "format": "csv",
-        "path": "/Users/Shared/listings.csv",
+        "path": "/Users/mihirsahu/Downloads/listings.csv",
         "outputView": "abnb_sfo_listing"
       },
       "multiValueField": {
@@ -14,12 +14,20 @@
         }
       }
     },
+    "2": {
+      "execType": "registerUDF",
+      "singleValueField": {
+        "udfName": "SampleUDF",
+        "path": "/Users/mihirsahu/Downloads/listings.csv"
+      },
+      "multiValueField": {
+      }
+    },
     "3": {
       "execType": "executeQuery",
       "singleValueField": {
         "sql": "select name from abnb_sfo_listing",
-        "outputView": "abnb_sfo_listing_name",
-        "cacheView": "true"
+        "outputView": "abnb_sfo_listing_name"
       },
       "multiValueField": {
         "sparkSettings": {
@@ -31,8 +39,8 @@
     "4": {
       "execType": "executeFunction",
       "singleValueField": {
-        "class": "org.cloudbird.spark.extensions.etl.FuncTest",
-        "function": "square"
+        "instr2Key21": "instr2Value21",
+        "instr1Key22": "instr1Value22"
       },
       "multiValueField": {
       }
@@ -40,9 +48,8 @@
     "5": {
       "execType": "save",
       "singleValueField": {
-        "format": "csv",
-        "path": "/Users/Shared/listings_name.csv",
-        "inputView": "abnb_sfo_listing_name"
+        "instr2Key21": "instr2Value21",
+        "instr1Key22": "instr1Value22"
       },
       "multiValueField": {
       }
