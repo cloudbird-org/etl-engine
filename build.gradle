@@ -4,6 +4,7 @@ plugins {
     id 'scala'
     id 'maven-publish' //for repo update
     id 'maven' //for local install
+    id 'signing' //for signing
 }
 
 
@@ -55,6 +56,9 @@ publishing {
             }
         }
     }
+}
+signing {
+    sign publishing.publications.etlEngine
 }
 repositories {
     mavenCentral()
