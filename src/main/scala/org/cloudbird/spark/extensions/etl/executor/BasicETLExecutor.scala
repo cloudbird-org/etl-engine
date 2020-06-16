@@ -45,8 +45,9 @@ object BasicETLExecutor {
         else
           log.error("Validation of input failed for run id:" + instrSeq + " with execution Type :" + instrSet.get.execType)
       }
-    }else
+    } else {
       log.error("Valid instruction set not supplied")
+    }
   }
 
   def validInstructionSet(instrSet: Option[InstructionSet]): Boolean = {

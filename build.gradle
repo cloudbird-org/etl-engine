@@ -1,15 +1,15 @@
 plugins {
     id 'java'
-    id 'java-library'
+    id 'java-library' //for components.java
     id 'scala'
-    id 'maven-publish'
-    id 'maven'
+    id 'maven-publish' //for repo update
+    id 'maven' //for local install
 }
 
 
 group 'org.cloudbird.spark.extensions'
 archivesBaseName = "etl-engine"
-    version '1.0'
+version '1.0'
 
 publishing {
     publications {
