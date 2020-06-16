@@ -11,6 +11,11 @@ group 'org.cloudbird.spark.extensions'
 archivesBaseName = "etl-engine"
 version '1.0'
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 publishing {
     publications {
         etlEngine(MavenPublication) {
