@@ -33,7 +33,7 @@
     "4": {
       "execType": "executeFunction",
       "singleValueField": {
-        "class": "org.cloudbird.spark.extensions.etl.test.FuncTest",
+        "class": "org.cloudbird.spark.samples.FuncTest",
         "function": "square"
       },
       "multiValueField": {
