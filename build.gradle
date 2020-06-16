@@ -15,6 +15,26 @@ publishing {
     publications {
         etlEngine(MavenPublication) {
             from components.java
+            pom {
+                name = 'Spark ETL Engine'
+                description = 'Base version current provides for extracting, tranforming and loading using Spark'
+                url = 'http://www.cloudbird.org'
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'cloudbird'
+                        email = 'cloudbird.dev@gmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/cloudbird-org/etl-engine/'
+                }
+            }
         }
     }
     repositories {
