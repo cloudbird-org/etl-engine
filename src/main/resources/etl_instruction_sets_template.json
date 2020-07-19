@@ -34,12 +34,23 @@
       "execType": "executeFunction",
       "singleValueField": {
         "class": "org.cloudbird.spark.samples.FuncTest",
-        "function": "square"
+        "function": "square",
+        "debug": "true"
       },
       "multiValueField": {
       }
     },
     "5": {
+      "execType": "executePython",
+      "singleValueField": {
+        "path": "/Users/cloudbird/data/development/workspace/pycharm/pyspark/sample/etl-engine",
+        "script": "pyspark_sample_01.py",
+        "debug": "true"
+      },
+      "multiValueField": {
+      }
+    },
+    "6": {
       "execType": "save",
       "singleValueField": {
         "format": "csv",

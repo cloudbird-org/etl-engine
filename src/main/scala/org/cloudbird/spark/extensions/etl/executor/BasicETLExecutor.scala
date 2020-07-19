@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory
 
 object BasicETLExecutor {
   val log = LoggerFactory.getLogger(getClass)
-
   val spark = SparkSession.builder().appName("BasicETLExecutor").enableHiveSupport().getOrCreate()
 
   def main(args: Array[String]): Unit = {
@@ -37,7 +36,7 @@ object BasicETLExecutor {
       val instrSets = etlInstructions.instructionSets
       val instrSeqList = instrSets.keys.toList.sortWith(_.toInt < _.toInt)
       //Create UDFs Required
-      // Register UDF using spark.register.udf(<udfName>,<UDF function Created>
+      //Register UDF using spark.register.udf(<udfName>,<UDF function Created>
       for (instrSeq <- instrSeqList) {
         val instrSet = instrSets.get(instrSeq)
         if (validInstructionSet(instrSet))
@@ -57,6 +56,7 @@ object BasicETLExecutor {
       case "executeQuery" => validateExecQryData(instrSet)
       case "save" => validateSaveData(instrSet)
       case "executeFunction" => validateExeFuncData(instrSet)
+      case "executePython" => validateExePythonData(instrSet)
       case "registerUDF" => validateExeFuncData(instrSet)
     }
   }
@@ -82,6 +82,10 @@ object BasicETLExecutor {
       case "executeFunction" => {
         val xform = new Transform(spark)
         xform.executeFunction(instrSet.get)
+      }
+      case "executePython" => {
+        val xform = new Transform(spark)
+        xform.executePythonScript(instrSet.get)
       }
     }
   }

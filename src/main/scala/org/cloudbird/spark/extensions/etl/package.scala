@@ -74,10 +74,10 @@ package object etl {
 
   def multiValueFieldCheck(fieldGroup: String, field: String, instrSet: Option[InstructionSet]): Boolean = {
     var fieldValueProvided: Boolean = false;
-    if (!field.contains("||"))
+    if (!field.contains("|"))
       fieldValueProvided = if (instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(field, null) != null) true else false
     else {
-      val fieldArray = field.split("||")
+      val fieldArray = field.split("""\|\|""")
       breakable {
         fieldArray.foreach(x => {
           fieldValueProvided = if (instrSet.get.multiValueField.getOrElse(fieldGroup, Map[String, String]()).getOrElse(x, null) != null) true else false
@@ -207,6 +207,13 @@ package object etl {
     var fieldList = Array("class", "function")
     reqExeFuncDataCheckStatus = fieldListValueCheck(fieldList, instrSet)
     reqExeFuncDataCheckStatus
+  }
+
+  def validateExePythonData(instrSet: Option[InstructionSet]): Boolean = {
+    var reqExePythonDataCheckStatus = false;
+    var fieldList = Array("script")
+    reqExePythonDataCheckStatus = fieldListValueCheck(fieldList, instrSet)
+    reqExePythonDataCheckStatus
   }
 
   case class SourceConf(processingType: String, format: String, schema: String, options: mutable.Map[String, String], path: String, debug: Boolean)

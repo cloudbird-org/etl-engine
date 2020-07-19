@@ -33,20 +33,8 @@ class Sink(spark: SparkSession) {
   val sparkConf = spark.sparkContext.getConf
   val log = LoggerFactory.getLogger(classOf[Sink])
 
-  def write(inputView: String, sinkName: String): Unit = {
-    var options = mutable.Map[String, String]()
-    val processingType = Option(sparkConf.get(getConfName(sinkName, "type")))
-    val format = Option(sparkConf.get(getConfName(sinkName, "format")))
-    val streamTrigger = Option(sparkConf.get(getConfName(sinkName, "trigger")))
-    val streamOutputMode = Option(sparkConf.get(getConfName(sinkName, "outputmode")))
-    val batchSaveMode = Option(sparkConf.get(getConfName(sinkName, "mode")))
-    val optionConfName = getConfName(sinkName, "option")
-    val optionsData = sparkConf.getAll.filter(x => (x._1.contains(optionConfName)))
-    optionsData.foreach(option => options += (option._1.substring(0, optionConfName.length + 1) -> option._2))
-    val path = Option(sparkConf.get(getConfName(sinkName, "path")))
-    val debug = Option(sparkConf.get(getConfName(sinkName, "debug")))
-    val sinkConf = SinkConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), Trigger.ProcessingTime(streamTrigger.getOrElse("0l").toLong), streamOutputMode.getOrElse("Append"), batchSaveMode.getOrElse("ErrorIfExists"), options, path.getOrElse(null), debug.getOrElse("false").toBoolean)
-    write(inputView, sinkConf)
+  def write(instrSet: Option[InstructionSet]): Unit = {
+    write(instrSet.get.singleValueField,instrSet.get.multiValueField)
   }
 
   def write(singleValueField: Map[String, String], multiValueField: Map[String, Map[String, String]]): Unit = {

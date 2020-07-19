@@ -32,18 +32,21 @@ class Source(spark: SparkSession) {
   val sparkConf = spark.sparkContext.getConf
   val log = LoggerFactory.getLogger(classOf[Source])
 
-  def read(srcName: String, outputView: String): Unit = {
-    var options = mutable.Map[String, String]()
-    val processingType = Option(sparkConf.get(getConfName(srcName, "type")))
-    val format = Option(sparkConf.get(getConfName(srcName, "format")))
-    val schema = Option(sparkConf.get(getConfName(srcName, "schema")))
-    val optionConfName = getConfName(srcName, "option")
-    val optionsData = sparkConf.getAll.filter(x => (x._1.contains(optionConfName)))
-    optionsData.foreach(option => options += (option._1.substring(0, optionConfName.length + 1) -> option._2))
-    val path = Option(sparkConf.get(getConfName(srcName, "path")))
-    val debug = Option(sparkConf.get(getConfName(srcName, "debug")))
+  def read(instrSet: Option[InstructionSet]): Unit = {
+    read(instrSet.get.singleValueField, instrSet.get.multiValueField)
+  }
 
-    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null), debug.getOrElse("false").toBoolean)
+  def read(singleValueField: Map[String, String], multiValueField: Map[String, Map[String, String]]): Unit = {
+    var options = mutable.Map[String, String]()
+    val processingType = singleValueField.get("type")
+    val format = singleValueField.get("format")
+    val schema = singleValueField.get("schema")
+    val outputView = singleValueField.get("outputView").get
+    val optionsData = multiValueField.get("options").getOrElse(Map[String, String]())
+    optionsData.keys.foreach(option => options += (option -> optionsData.get(option).get))
+    val path = singleValueField.get("path")
+    val debug = singleValueField.getOrElse("debug", "false").toBoolean
+    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null), debug)
     read(srcConf, outputView)
   }
 
@@ -93,19 +96,5 @@ class Source(spark: SparkSession) {
 
     if (srcConf.debug) df.show(20, false)
     df.createTempView(outputView)
-  }
-
-  def read(singleValueField: Map[String, String], multiValueField: Map[String, Map[String, String]]): Unit = {
-    var options = mutable.Map[String, String]()
-    val processingType = singleValueField.get("type")
-    val format = singleValueField.get("format")
-    val schema = singleValueField.get("schema")
-    val outputView = singleValueField.get("outputView").get
-    val optionsData = multiValueField.get("options").getOrElse(Map[String, String]())
-    optionsData.keys.foreach(option => options += (option -> optionsData.get(option).get))
-    val path = singleValueField.get("path")
-    val debug = singleValueField.getOrElse("debug", "false").toBoolean
-    val srcConf = SourceConf(processingType.getOrElse("batch"), format.getOrElse("parquet"), schema.getOrElse(null), options, path.getOrElse(null), debug)
-    read(srcConf, outputView)
   }
 }
